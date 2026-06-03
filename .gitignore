@@ -1,6 +1,45 @@
-/.DS_Store
-/Verité Data plan.gdoc
-/_trash
-**/.DS_Store
-data/_ktn_network.html
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.so
+
+# Virtual environments
 .venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Distribution / packaging
+*.whl
+*.tar.gz
+*.egg-info/
+MANIFEST
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Type checking / linting
+.mypy_cache/
+.ruff_cache/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Project-specific
+_trash/
+data/_ktn_network.html
+/Verité Data plan.gdoc
