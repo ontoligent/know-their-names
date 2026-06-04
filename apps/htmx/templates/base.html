@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Know Their Names{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/htmx.org@2/dist/htmx.min.js"></script>
+  <script src="https://unpkg.com/alpinejs@3/dist/cdn.min.js" defer></script>
+  <script src="https://unpkg.com/vis-network@latest/dist/vis-network.min.js"></script>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <header class="app-header">
+    <a href="/" class="app-title">Know Their Names</a>
+    <small class="app-subtitle">Albemarle County, VA · 19th Century Records</small>
+  </header>
+  <main class="app-layout">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

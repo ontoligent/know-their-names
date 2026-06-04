@@ -1,0 +1,16 @@
+{% if results %}
+  {% for r in results %}
+  <div class="result-item"
+       hx-get="/person/{{ r.key | urlencode }}"
+       hx-target="body"
+       hx-swap="outerHTML"
+       hx-push-url="true"
+       role="button"
+       tabindex="0">
+    <span class="result-name">{{ r.name }}</span>
+    <small class="result-meta">{{ r.birth_year }} · {{ r.norm_race | upper }} · {{ r.gender | upper }}</small>
+  </div>
+  {% endfor %}
+{% else %}
+  <p class="muted">No matches.</p>
+{% endif %}

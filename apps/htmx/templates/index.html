@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{% if info %}{{ info.name }} — {% endif %}Know Their Names{% endblock %}
+
+{% block content %}
+<aside class="sidebar"
+       x-data="{
+         degrees:   parseInt(localStorage.getItem('ktn-degrees') || '{{ degrees }}'),
+         layout:    localStorage.getItem('ktn-layout') || '{{ layout }}',
+         personKey: '{{ person_key or '' }}',
+         init() {
+           this.$watch('degrees', v => localStorage.setItem('ktn-degrees', v));
+           this.$watch('layout',  v => localStorage.setItem('ktn-layout',  v));
+         },
+         fetchGraph() {
+           if (!this.personKey) return;
+           htmx.ajax('GET', '/graph', {
+             target: '#graph-container',
+             values: { key: this.personKey, degrees: this.degrees, layout: this.layout }
+           });
+         }
+       }">
+
+  <section>
+    <input
+      type="search"
+      name="q"
+      placeholder="Search name or key (min 2 chars)…"
+      autocomplete="off"
+      hx-get="/search"
+      hx-target="#search-results"
+      hx-trigger="keyup changed delay:300ms"
+    >
+    <div id="search-results" class="search-results"></div>
+  </section>
+
+  {% if info %}
+  <section id="person-info">
+    {% include "partials/person_info.html" %}
+  </section>
+  {% else %}
+  <section id="person-info">
+    <p class="muted">Search for a person to begin.</p>
+  </section>
+  {% endif %}
+
+  <section>
+    <p class="legend-group-label">Layout</p>
+    <div class="layout-btns">
+      <button :class="layout === 'force'        ? 'active' : ''" @click="layout = 'force';        fetchGraph()">Force</button>
+      <button :class="layout === 'genealogical' ? 'active' : ''" @click="layout = 'genealogical'; fetchGraph()">Genealogical</button>
+      <button :class="layout === 'radial'       ? 'active' : ''" @click="layout = 'radial';       fetchGraph()">Radial</button>
+    </div>
+  </section>
+
+  {% if person_key %}
+  <section>
+    <label>
+      Degrees of separation: <strong x-text="degrees"></strong>
+      <input
+        type="range" min="1" max="4"
+        x-model="degrees"
+        @change="fetchGraph()"
+      >
+    </label>
+  </section>
+  {% endif %}
+
+  <section x-data="{ open: true }">
+    <h6 class="legend-heading" @click="open = !open">
+      Legend <span x-text="open ? '▲' : '▼'" style="font-size:0.7rem"></span>
+    </h6>
+    <div x-show="open">
+      <p class="legend-group-label">Nodes — race</p>
+      <div class="legend-items">
+        <span class="legend-dot" style="background:#f1c40f"></span><span>Black</span>
+        <span class="legend-dot" style="background:#85c1e9"></span><span>White</span>
+        <span class="legend-dot" style="background:#82e0aa"></span><span>Mixed</span>
+        <span class="legend-dot" style="background:#d7dbdd;border-radius:2px"></span><span>Unknown</span>
+      </div>
+      <p class="legend-group-label" style="margin-top:0.5rem">Edges — relation</p>
+      <div class="legend-items">
+        <span class="legend-line" style="background:#e74c3c"></span><span>wasEnslavedBy</span>
+        <span class="legend-line" style="background:#2980b9"></span><span>isParentOf</span>
+        <span class="legend-line" style="background:#1a5276"></span><span>IsFatherOf</span>
+        <span class="legend-line" style="background:#76448a"></span><span>IsMotherOf</span>
+        <span class="legend-line" style="background:#5dade2"></span><span>isChildOf</span>
+        <span class="legend-line" style="background:#27ae60"></span><span>isSiblingOf</span>
+        <span class="legend-line" style="background:#e91e63"></span><span>isSpouseOf</span>
+        <span class="legend-line" style="background:#148f77"></span><span>isGrandParentOf</span>
+        <span class="legend-line" style="background:#1abc9c"></span><span>isGrandChildOf</span>
+        <span class="legend-line" style="background:#e67e22"></span><span>isNiblingOf</span>
+        <span class="legend-line" style="background:#ca6f1e"></span><span>isPiblingOf</span>
+        <span class="legend-line" style="background:#f39c12"></span><span>isCousinOf</span>
+        <span class="legend-line" style="background:#8e44ad"></span><span>isChildInLawOf</span>
+        <span class="legend-line" style="background:#9b59b6"></span><span>isParentInLawOf</span>
+        <span class="legend-line" style="background:#6c3483"></span><span>isSiblingInLawOf</span>
+      </div>
+    </div>
+  </section>
+
+</aside>
+
+<section class="graph-area">
+  <div id="graph-container">
+    {% if nodes %}
+      {% include "partials/graph.html" %}
+    {% else %}
+      <p class="graph-empty">Select a person to explore their network.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,18 @@
+<div class="person-card">
+  <h3 class="person-name">{{ info.name }}</h3>
+  <code class="person-key">{{ person_key }}</code>
+  <dl class="person-attrs">
+    <dt>Born</dt>
+    <dd>{{ info.birth_year }}</dd>
+    <dt>Race</dt>
+    <dd>{{ info.norm_race | upper }}</dd>
+    <dt>Gender</dt>
+    <dd>{{ info.gender | upper }}</dd>
+    {% if person_row is not none %}
+    <dt>Mentions</dt>
+    <dd>{{ person_row.n_mentions | int }}</dd>
+    <dt>Relations</dt>
+    <dd>{{ person_row.n_relations | int }}</dd>
+    {% endif %}
+  </dl>
+</div>

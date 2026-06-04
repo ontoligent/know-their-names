@@ -1,0 +1,82 @@
+<div id="ego_graph" class="vis-canvas"></div>
+<div id="node-popup" class="node-popup" style="display:none"></div>
+<script>
+(function() {
+    var nodes = new vis.DataSet({{ nodes | tojson }});
+    var edges = new vis.DataSet({{ edges | tojson }});
+    var container = document.getElementById('ego_graph');
+    var popup     = document.getElementById('node-popup');
+    var usePhysics = {{ use_physics | tojson }};
+
+    var options = {
+        height: '100%',
+        width:  '100%',
+        nodes: {
+            font: { size: 10, face: 'arial' }
+        },
+        edges: {
+            scaling: { min: 1, max: 6 },
+            smooth:  { enabled: false }   // default; overridden per-edge for bidirectional pairs
+        },
+        physics: usePhysics ? {
+            enabled: true,
+            solver: 'barnesHut',
+            barnesHut: {
+                springLength:   180,
+                springConstant: 0.04,
+                damping:        0.09,
+                avoidOverlap:   0.3
+            },
+            stabilization: { iterations: 300 }
+        } : { enabled: false },
+        interaction: {
+            hover:           true,
+            tooltipDelay:    200,
+            hideEdgesOnDrag: true
+        }
+    };
+
+    var network = new vis.Network(container, { nodes: nodes, edges: edges }, options);
+
+    if (usePhysics) {
+        network.on('stabilizationIterationsDone', function() {
+            network.setOptions({ physics: { enabled: false } });
+        });
+    }
+
+    var _mx = 0, _my = 0;
+    document.addEventListener('mousemove', function(e) { _mx = e.clientX; _my = e.clientY; });
+
+    network.on('hoverNode', function(params) {
+        var data = nodes.get(params.node);
+        popup.innerHTML     = data.title;
+        popup.style.display = 'block';
+        popup.style.left    = (_mx + 16) + 'px';
+        popup.style.top     = (_my + 16) + 'px';
+    });
+
+    network.on('blurNode', function() { popup.style.display = 'none'; });
+
+    network.on('hoverEdge', function(params) {
+        var edgeData = edges.get(params.edge);
+        popup.innerHTML     = '<b>' + (edgeData.title || '') + '</b>';
+        popup.style.display = 'block';
+        popup.style.left    = (_mx + 16) + 'px';
+        popup.style.top     = (_my + 16) + 'px';
+    });
+
+    network.on('blurEdge', function() { popup.style.display = 'none'; });
+
+    network.on('selectNode', function(props) {
+        popup.style.display = 'none';
+        var key     = props.nodes[0];
+        var degrees = localStorage.getItem('ktn-degrees') || '2';
+        var layout  = localStorage.getItem('ktn-layout')  || 'force';
+        var url     = '/person/' + encodeURIComponent(key)
+                    + '?degrees=' + degrees
+                    + '&layout='  + layout;
+        htmx.ajax('GET', url, { target: 'body', swap: 'outerHTML' });
+        history.pushState({}, '', url);
+    });
+})();
+</script>
